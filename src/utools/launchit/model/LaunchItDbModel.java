@@ -7,11 +7,9 @@
 package utools.launchit.model;
 
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +17,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import static utools.launchit.LaunchItApp.getLogFileHandler;
 import utools.launchit.LaunchItDbEntry;
-import utools.launchit.Pair;
 import utools.launchit.db.LaunchItDatabase;
 
 /**

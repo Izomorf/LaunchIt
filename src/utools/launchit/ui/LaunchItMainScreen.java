@@ -8,12 +8,21 @@ package utools.launchit.ui;
 
 import com.melloware.jintellitype.HotkeyListener;
 import com.melloware.jintellitype.JIntellitype;
+import java.awt.AWTException;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import sun.util.logging.resources.logging;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import static utools.launchit.LaunchItApp.getLogFileHandler;
 import utools.launchit.LaunchItConstants;
 import utools.launchit.LaunchItDbEntry;
 import utools.launchit.db.LaunchItDatabase;
@@ -23,20 +32,31 @@ import utools.launchit.db.LaunchItDatabase;
  * @author ruinmaxk
  */
 public class LaunchItMainScreen extends javax.swing.JFrame {
-
-    String inputString;
+    private static Logger log = Logger.getLogger(LaunchItMainScreen.class.getName());
     
+    String inputString;
+    TrayIcon trayIcon;
     
     /**
      * Creates new form MainScreen
      */
     public LaunchItMainScreen() {
         initComponents();
+        
+        try {
+            log.addHandler(getLogFileHandler());
+        } catch (SecurityException e) {
+            log.log(Level.SEVERE,
+                "Cannot create log file due to Security Exception: ", e);
+        }
+        
         JIntellitype.getInstance().addHotKeyListener(new HotkeyListener() {
             @Override
             public void onHotKey(int i) {
                 if (i == 1) {
                     setVisible(true);
+                    setState(NORMAL);
+                    SystemTray.getSystemTray().remove(trayIcon);
                 }
             }
         });
@@ -47,6 +67,31 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
                 JIntellitype.getInstance().cleanUp();
+            }
+        });
+        addWindowStateListener(new WindowStateListener() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                if (e.getNewState() == ICONIFIED) {
+                    try {
+                        ImageIcon icon = new ImageIcon(getClass()
+                                .getResource("/utools/launchit/res/lollipop.png"));
+                        trayIcon = new TrayIcon(icon.getImage(), "LaunchIt");
+                        trayIcon.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                setVisible(true);
+                                setState(NORMAL);
+                                SystemTray.getSystemTray().remove(trayIcon);
+                            }
+                        });
+                        
+                        SystemTray.getSystemTray().add(trayIcon);
+                        setVisible(false);
+                    } catch (AWTException exception) {
+                        log.log(Level.SEVERE, "Cannot minimize application to System Tray");
+                    }
+                }
             }
         });
     }
@@ -106,6 +151,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
                     String path = appEntry.getValue(LaunchItConstants.COLUMN_PATH);
                     try {
                         Runtime.getRuntime().exec(path);
+                        setState(ICONIFIED);
                     } catch (IOException e) {
                         
                     }
