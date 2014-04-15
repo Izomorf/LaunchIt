@@ -98,6 +98,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
             }
         });
         setIconImage(appIcon.getImage());
+        setLocationRelativeTo(null);
     }
 
     /**
