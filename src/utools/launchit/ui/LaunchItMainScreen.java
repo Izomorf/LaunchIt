@@ -36,6 +36,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
     
     String inputString;
     TrayIcon trayIcon;
+    ImageIcon appIcon;
     
     /**
      * Creates new form MainScreen
@@ -43,6 +44,11 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
     public LaunchItMainScreen() {
         initComponents();
         
+        appIcon = new ImageIcon(getClass().getResource("/utools/launchit/res/lollipop_big.png"));
+        trayIcon = new TrayIcon(new ImageIcon(getClass()
+                .getResource("/utools/launchit/res/lollipop.png")).getImage(),
+                "LaunchIt");
+
         try {
             log.addHandler(getLogFileHandler());
         } catch (SecurityException e) {
@@ -74,9 +80,6 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
             public void windowStateChanged(WindowEvent e) {
                 if (e.getNewState() == ICONIFIED) {
                     try {
-                        ImageIcon icon = new ImageIcon(getClass()
-                                .getResource("/utools/launchit/res/lollipop.png"));
-                        trayIcon = new TrayIcon(icon.getImage(), "LaunchIt");
                         trayIcon.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
@@ -94,6 +97,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
                 }
             }
         });
+        setIconImage(appIcon.getImage());
     }
 
     /**
@@ -108,6 +112,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
         inputField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
 
         inputField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -141,6 +146,10 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
                 LaunchItDbScreen dbScreen = new LaunchItDbScreen();
                 dbScreen.setVisible(true);
             }
+            if (inputField.getText().equalsIgnoreCase("exit")) {
+                dispose();
+                System.exit(0);
+            }            
             inputString = inputField.getText();
             Set<String> keys;
             String alias;
