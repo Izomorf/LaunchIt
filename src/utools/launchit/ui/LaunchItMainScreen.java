@@ -9,6 +9,7 @@ package utools.launchit.ui;
 import com.melloware.jintellitype.HotkeyListener;
 import com.melloware.jintellitype.JIntellitype;
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.KeyEvent;
@@ -37,7 +38,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
     String inputString;
     TrayIcon trayIcon;
     ImageIcon appIcon;
-    
+    boolean withholdTray = false; 
     /**
      * Creates new form MainScreen
      */
@@ -75,30 +76,10 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
                 JIntellitype.getInstance().cleanUp();
             }
         });
-        addWindowStateListener(new WindowStateListener() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                if (e.getNewState() == ICONIFIED) {
-                    try {
-                        trayIcon.addMouseListener(new MouseAdapter() {
-                            @Override
-                            public void mouseClicked(MouseEvent e) {
-                                setVisible(true);
-                                setState(NORMAL);
-                                SystemTray.getSystemTray().remove(trayIcon);
-                            }
-                        });
-                        
-                        SystemTray.getSystemTray().add(trayIcon);
-                        setVisible(false);
-                    } catch (AWTException exception) {
-                        log.log(Level.SEVERE, "Cannot minimize application to System Tray");
-                    }
-                }
-            }
-        });
         setIconImage(appIcon.getImage());
         setLocationRelativeTo(null);
+        setLookAndFeel();
+        getContentPane().setBackground(Color.BLACK);
     }
 
     /**
@@ -113,7 +94,22 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
         inputField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("LaunchIt");
+        setBackground(new java.awt.Color(0, 0, 0));
+        setForeground(java.awt.Color.black);
         setUndecorated(true);
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+                formWindowLostFocus(evt);
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowIconified(java.awt.event.WindowEvent evt) {
+                formWindowIconified(evt);
+            }
+        });
 
         inputField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -144,6 +140,7 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
     private void inputFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputFieldKeyReleased
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             if (inputField.getText().equalsIgnoreCase("database")) {
+                withholdTray = true;
                 LaunchItDbScreen dbScreen = new LaunchItDbScreen();
                 dbScreen.setVisible(true);
             }
@@ -171,18 +168,34 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_inputFieldKeyReleased
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+    private void formWindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowLostFocus
+        if (!withholdTray) {
+            setState(ICONIFIED);
+        }
+    }//GEN-LAST:event_formWindowLostFocus
+
+    private void formWindowIconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowIconified
+        try {
+            trayIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    setVisible(true);
+                    setState(NORMAL);
+                    SystemTray.getSystemTray().remove(trayIcon);
+                }
+            });
+                        
+            SystemTray.getSystemTray().add(trayIcon);
+            setVisible(false);
+        } catch (AWTException exception) {
+            log.log(Level.SEVERE, "Cannot minimize application to System Tray");
+        }
+    }//GEN-LAST:event_formWindowIconified
+
+    private void setLookAndFeel() {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Metal".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -196,14 +209,6 @@ public class LaunchItMainScreen extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(LaunchItMainScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LaunchItMainScreen().setVisible(true);
-            }
-        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
