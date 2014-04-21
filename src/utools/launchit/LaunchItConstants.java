@@ -16,5 +16,8 @@ public class LaunchItConstants {
     
     public static final String COLUMN_ALIAS = "alias";
     public static final String COLUMN_PATH = "path";
+    public static final String COLUMN_FOLDER = "folder";
     public static final String COLUMN_ROWID = "rowid";
+    
+    public static final String INPUT_ALIAS = "Input Alias name here:";
 }
